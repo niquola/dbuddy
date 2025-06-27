@@ -78,6 +78,30 @@ npm run lint:fix
 npm run typecheck
 ```
 
+### TypeScript Type Generation
+
+Generate TypeScript interfaces and query builders from your database schema:
+
+```bash
+# Generate types for all tables
+npx tsql-generate
+
+# Generate types for all tables in a specific directory
+npx tsql-generate ./my-types
+
+# Generate types for specific tables only
+npx tsql-generate ./generated users posts comments
+
+# Via npm scripts (alternative)
+npm run generate
+npm run generate:types
+```
+
+This will create TypeScript files with:
+- Interface definitions for each table
+- Typed query builder classes
+- Factory functions for creating queries
+
 ### Usage
 
 ```typescript
@@ -108,6 +132,26 @@ const user = await db.query('SELECT * FROM users WHERE id = $1', [1])
 
 // Close connection
 await db.close()
+```
+
+#### Using Generated Types
+
+After generating types, you can use them for type-safe database queries:
+
+```typescript
+import { Database } from 'tsql'
+import { userQuery, User } from './generated'
+
+const db = new Database()
+
+// Type-safe queries with auto-completion
+const users = await userQuery(db)
+  .where(q => q.isActive.equals(true))
+  .and(q => q.createdAt.greaterThan(new Date('2024-01-01')))
+  .select()
+
+// users is typed as User[]
+console.log(users[0].firstName) // Type-safe property access
 ```
 
 ## License

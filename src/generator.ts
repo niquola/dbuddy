@@ -1,5 +1,4 @@
 import { Database } from './database'
-import { getDatabaseConfig } from './config'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 
@@ -33,18 +32,27 @@ export class SchemaGenerator {
   }
 
   /**
-   * Get all tables from the public schema
+   * Get all tables from the public schema, optionally filtered by table names
    */
-  private async getTables(): Promise<string[]> {
-    const query = `
+  private async getTables(filterTables?: string[]): Promise<string[]> {
+    let query = `
       SELECT table_name 
       FROM information_schema.tables 
       WHERE table_schema = 'public' 
         AND table_type = 'BASE TABLE'
-      ORDER BY table_name;
     `
     
-    const result = await this.db.query<{ table_name: string }>(query)
+    const params: string[] = []
+    
+    if (filterTables && filterTables.length > 0) {
+      const placeholders = filterTables.map((_, index) => `$${index + 1}`).join(', ')
+      query += ` AND table_name IN (${placeholders})`
+      params.push(...filterTables)
+    }
+    
+    query += ` ORDER BY table_name;`
+    
+    const result = await this.db.query<{ table_name: string }>(query, params)
     return result.rows.map(row => row.table_name)
   }
 
@@ -275,11 +283,7 @@ ${fieldAccessors}
     const fieldTypes = [...new Set(fields.map(f => f.fieldType))]
     const imports = this.generateFieldQueryImports(fieldTypes)
     
-    return `import { Database } from '../src/database'
-import { QueryBuilder, QueryState } from '../src/query-builder'
-import { 
-  ${imports}
-} from '../src/types'
+    return `import { Database, QueryBuilder, QueryState, ${imports} } from 'tsql'
 
 ${interfaceCode}
 
@@ -354,19 +358,37 @@ ${exports}
   /**
    * Main generation method
    */
-  async generate(outputDir: string): Promise<void> {
+  async generate(outputDir: string, options?: { tables?: string[] }): Promise<void> {
     try {
-      console.log('🔍 Scanning database schema...')
+      const filterTables = options?.tables
       
-      // Get all tables from public schema
-      const tableNames = await this.getTables()
+      if (filterTables && filterTables.length > 0) {
+        console.log(`🔍 Scanning database schema for specified tables: ${filterTables.join(', ')}...`)
+      } else {
+        console.log('🔍 Scanning database schema for all tables...')
+      }
+      
+      // Get tables from public schema (all or filtered)
+      const tableNames = await this.getTables(filterTables)
       
       if (tableNames.length === 0) {
-        console.log('⚠️  No tables found in public schema')
+        if (filterTables && filterTables.length > 0) {
+          console.log(`⚠️  No matching tables found for: ${filterTables.join(', ')}`)
+        } else {
+          console.log('⚠️  No tables found in public schema')
+        }
         return
       }
 
-      console.log(`📋 Found ${tableNames.length} tables: ${tableNames.join(', ')}`)
+      // Check if any specified tables were not found
+      if (filterTables && filterTables.length > 0) {
+        const notFound = filterTables.filter(table => !tableNames.includes(table))
+        if (notFound.length > 0) {
+          console.log(`⚠️  Tables not found: ${notFound.join(', ')}`)
+        }
+      }
+
+      console.log(`📋 Processing ${tableNames.length} tables: ${tableNames.join(', ')}`)
 
       // Ensure output directory exists
       await this.ensureDirectory(outputDir)
@@ -388,12 +410,6 @@ ${exports}
         console.log(`✅ Generated: ${outputPath}`)
       }
 
-      // Generate index file
-      const indexContent = this.generateIndexFile(tableNames)
-      const indexPath = path.join(outputDir, 'index.ts')
-      await fs.writeFile(indexPath, indexContent, 'utf8')
-      console.log(`✅ Generated: ${indexPath}`)
-
       console.log(`🎉 Successfully generated types for ${tableNames.length} tables in ${outputDir}`)
 
     } catch (error) {
@@ -408,13 +424,25 @@ ${exports}
 /**
  * CLI function to generate schema types
  */
-export async function generateSchema(outputDir: string = './generated'): Promise<void> {
+export async function generateSchema(outputDir: string = './generated', tables?: string[]): Promise<void> {
   const generator = new SchemaGenerator()
-  await generator.generate(outputDir)
+  const options = tables ? { tables } : undefined
+  await generator.generate(outputDir, options)
 }
 
 // If run directly
 if (require.main === module) {
-  const outputDir = process.argv[2] || './generated'
-  generateSchema(outputDir).catch(console.error)
+  const args = process.argv.slice(2)
+  const outputDir = args[0] || './generated'
+  
+  // Parse table names from remaining arguments
+  const tables = args.slice(1).length > 0 ? args.slice(1) : undefined
+  
+  if (tables && tables.length > 0) {
+    console.log(`🎯 Generating types for specific tables: ${tables.join(', ')}`)
+  } else {
+    console.log('🎯 Generating types for all tables')
+  }
+  
+  generateSchema(outputDir, tables).catch(console.error)
 } 
