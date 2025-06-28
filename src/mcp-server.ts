@@ -481,8 +481,12 @@ class MCPServer {
     const configInfo = this.service.getConfig()
     const { config, envVars } = configInfo
     const setVars = envVars.filter((env: EnvironmentVariable) => env.isSet)
+    const projectDir = getProjectBaseDirectory()
 
-    const configText = `Database Configuration:
+    const configText = `Project Configuration:
+Project Directory: ${projectDir}
+
+Database Configuration:
 Host: ${config.host}
 Port: ${config.port}
 Database: ${config.database}
