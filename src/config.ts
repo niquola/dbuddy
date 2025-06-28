@@ -12,7 +12,28 @@ export function getProjectBaseDirectory(): string {
   }
 
   // Fallback: current working directory
-  return process.cwd()
+  const cwd = process.cwd()
+  
+  // If we have a reasonable working directory, check if it contains package.json
+  if (cwd !== '/' && cwd !== '' && fs.existsSync(path.join(cwd, 'package.json'))) {
+    return cwd
+  }
+  
+  // If current working directory doesn't work, try to find project directory
+  // based on the location of this config file
+  const configFileDir = __dirname
+  let currentDir = configFileDir
+  
+  // Search up the directory tree from the config file location
+  while (currentDir !== path.dirname(currentDir)) {
+    if (fs.existsSync(path.join(currentDir, 'package.json'))) {
+      return currentDir
+    }
+    currentDir = path.dirname(currentDir)
+  }
+  
+  // Last resort: use the working directory even if it seems wrong
+  return cwd
 }
 
 // Function to find .env file starting from the project base directory

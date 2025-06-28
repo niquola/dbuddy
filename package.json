@@ -6,10 +6,11 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "bin": {
-    "dbuddy": "bin/dbuddy.js"
+    "dbuddy": "bin/dbuddy.js",
+    "dbuddy-mcp": "bin/dbuddy-mcp.js"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts && tsup src/generator.ts --format cjs && tsup src/cli.ts --format cjs && tsup src/migration-runner.ts --format cjs",
+    "build": "tsup src/index.ts --format cjs,esm --dts && tsup src/generator.ts --format cjs && tsup src/cli.ts --format cjs && tsup src/migration-runner.ts --format cjs && tsup src/mcp-server.ts --format cjs",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "test": "vitest run",
     "test:run": "vitest run",
@@ -21,6 +22,7 @@
     "generate:types": "npx tsx src/generator.ts ./generated",
     "init-sql": "npx tsx scripts/init-sql.ts",
     "playground": "npx tsx scripts/playground.ts",
+    "mcp-server": "npx tsx src/mcp-server.ts",
     "prepublishOnly": "npm run lint && npm run typecheck && npm run test:run && npm run build",
     "release": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
@@ -29,7 +31,9 @@
   "keywords": [
     "typescript",
     "sql",
-    "database"
+    "database",
+    "mcp",
+    "model-context-protocol"
   ],
   "author": "",
   "license": "MIT",
@@ -57,5 +61,9 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     }
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.7.0",
+    "zod": "^3.24.1"
   }
 }

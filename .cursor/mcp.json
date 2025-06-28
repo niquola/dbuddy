@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "dbuddy": {
+      "command": "node",
+      "args": ["./bin/dbuddy-mcp.js"]
+    }
+  }
+} 

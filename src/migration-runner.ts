@@ -3,6 +3,7 @@ import path from 'path'
 import crypto from 'crypto'
 import { Database } from './database'
 import { Migration, MigrationRecord, MigrationStatus, MigrationOptions } from './types'
+import { getProjectBaseDirectory } from './config'
 
 export class MigrationRunner {
   private db: Database
@@ -10,7 +11,16 @@ export class MigrationRunner {
 
   constructor(db: Database, migrationsDir: string = './migrations') {
     this.db = db
-    this.migrationsDir = path.resolve(migrationsDir)
+    
+    // Resolve migrations directory relative to project base directory
+    const baseDir = getProjectBaseDirectory()
+    if (path.isAbsolute(migrationsDir)) {
+      this.migrationsDir = migrationsDir
+    } else {
+      this.migrationsDir = path.resolve(baseDir, migrationsDir)
+    }
+    
+
   }
 
   /**
@@ -39,7 +49,11 @@ export class MigrationRunner {
   async generateMigration(name: string): Promise<{ version: string; upFile: string; downFile: string }> {
     // Ensure migrations directory exists
     if (!fs.existsSync(this.migrationsDir)) {
-      fs.mkdirSync(this.migrationsDir, { recursive: true })
+      try {
+        fs.mkdirSync(this.migrationsDir, { recursive: true })
+      } catch (error) {
+        throw new Error(`Failed to create migrations directory: ${this.migrationsDir}. Error: ${error instanceof Error ? error.message : String(error)}`)
+      }
     }
 
     // Generate timestamp version
