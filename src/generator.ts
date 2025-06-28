@@ -443,7 +443,7 @@ ${exports}
 /**
  * CLI function to generate schema types
  */
-export async function generateSchema(outputDir: string = './generated', tables?: string[]): Promise<void> {
+export async function generateSchema(outputDir: string = './src/db', tables?: string[]): Promise<void> {
   const generator = new SchemaGenerator()
   const options = tables ? { tables } : undefined
   await generator.generate(outputDir, options)

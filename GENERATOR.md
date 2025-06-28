@@ -14,7 +14,7 @@ This generator reads your PostgreSQL database tables from the `public` schema an
 
 ### Command Line
 
-Generate types to the default `./generated` directory:
+Generate types to the default `./src/db` directory:
 ```bash
 npm run generate
 ```
@@ -35,14 +35,14 @@ npx tsx src/generator.ts ./custom-output-dir
 import { SchemaGenerator } from './src/generator'
 
 const generator = new SchemaGenerator()
-await generator.generate('./generated')
+await generator.generate('./src/db')
 ```
 
 ## Output Structure
 
 For a table named `users`, the generator creates:
 
-### Interface (`generated/users.ts`)
+### Interface (`./src/db/users.ts`)
 ```typescript
 export interface Users {
   id: number
@@ -56,7 +56,7 @@ export function usersQuery(db: Database): QueryBuilder<Users> {
 }
 ```
 
-### Index File (`generated/index.ts`)
+### Index File (`./src/db/index.ts`)
 ```typescript
 export { Users, usersQuery } from './users'
 // ... other exports
@@ -79,7 +79,7 @@ After generation, use your types like this:
 
 ```typescript
 import { Database } from './src/database'
-import { Users, usersQuery } from './generated'
+import { Users, usersQuery } from './src/db'
 
 const db = new Database()
 

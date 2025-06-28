@@ -135,16 +135,15 @@ Examples:
 
   private async runGenModel(args: CliArgs): Promise<void> {
     try {
-      const outputDir = args.outputDir || './generated'
       const tables = args.tables && args.tables.length > 0 ? args.tables : undefined
       
       console.log('🎯 Starting model generation...')
       
-      await this.service.generateModels(outputDir, tables)
+      const result = await this.service.generateModels(args.outputDir, tables)
       
-      console.log(`✅ Models generated successfully in ${outputDir}`)
-      if (tables) {
-        console.log(`📋 Tables processed: ${tables.join(', ')}`)
+      console.log(`✅ Models generated successfully in ${result.outputDir}`)
+      if (result.tables) {
+        console.log(`📋 Tables processed: ${result.tables.join(', ')}`)
       }
       
     } catch (error) {

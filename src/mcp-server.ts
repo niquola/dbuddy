@@ -61,7 +61,7 @@ const ExecuteSqlSchema = z.object({
 })
 
 const GenerateModelsSchema = z.object({
-  outputDir: z.string().optional().describe('Output directory for generated models (default: ./generated)'),
+  outputDir: z.string().optional().describe('Output directory for generated models (default: ./src/db)'),
   tables: z.array(z.string()).optional().describe('Specific tables to generate models for')
 })
 
@@ -124,7 +124,7 @@ const tools: Tool[] = [
       properties: {
         outputDir: {
           type: 'string',
-          description: 'Output directory for generated models (default: ./generated)'
+          description: 'Output directory for generated models (default: ./src/db)'
         },
         tables: {
           type: 'array',
@@ -357,15 +357,13 @@ class MCPServer {
   }
 
   private async handleGenerateModels(args: z.infer<typeof GenerateModelsSchema>) {
-    const outputDir = args.outputDir || './generated'
-    
-    await this.service.generateModels(outputDir, args.tables)
+    const result = await this.service.generateModels(args.outputDir, args.tables)
 
     return {
       content: [
         {
           type: 'text',
-          text: `TypeScript models generated successfully in ${outputDir}${args.tables ? ` for tables: ${args.tables.join(', ')}` : ''}`
+          text: `TypeScript models generated successfully in ${result.outputDir}${result.tables ? ` for tables: ${result.tables.join(', ')}` : ''}`
         }
       ]
     }

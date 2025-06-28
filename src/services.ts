@@ -124,12 +124,24 @@ export class DbBuddyService {
   }
 
   // Model generation
-  async generateModels(outputDir?: string, tables?: string[]): Promise<void> {
+  async generateModels(outputDir?: string, tables?: string[]): Promise<{ outputDir: string; tableCount: number; tables?: string[] }> {
     const generator = new SchemaGenerator()
-    const dir = outputDir || './generated'
+    const dir = outputDir || './src/db'
     const options = tables ? { tables } : undefined
     
     await generator.generate(dir, options)
+    
+    // Return information for consistent messaging
+    const result: { outputDir: string; tableCount: number; tables?: string[] } = {
+      outputDir: dir,
+      tableCount: tables?.length || 0
+    }
+    
+    if (tables) {
+      result.tables = tables
+    }
+    
+    return result
   }
 
   // Migration operations
