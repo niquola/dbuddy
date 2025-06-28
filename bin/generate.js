@@ -7,14 +7,14 @@ const path = require('path');
 const binDir = __dirname;
 // Get the project root (one level up from bin)
 const projectRoot = path.dirname(binDir);
-// Path to the generator TypeScript file
-const generatorPath = path.join(projectRoot, 'src', 'generator.ts');
+// Path to the compiled generator JavaScript file
+const generatorPath = path.join(projectRoot, 'dist', 'generator.js');
 
 // Pass all command line arguments to the generator
 const args = process.argv.slice(2);
 
-// Spawn tsx to run the TypeScript generator
-const child = spawn('npx', ['tsx', generatorPath, ...args], {
+// Run the compiled JavaScript generator
+const child = spawn('node', [generatorPath, ...args], {
   stdio: 'inherit',
   cwd: projectRoot
 });
