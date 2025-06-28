@@ -3,11 +3,11 @@ version: '3.8'
 services:
   postgres:
     image: postgres:16
-    container_name: tsql-postgres
+    container_name: dbuddy-postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: tsql_dev
+      POSTGRES_DB: dbuddy_dev
     ports:
       - "15432:5432"
     volumes:

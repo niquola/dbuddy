@@ -293,7 +293,7 @@ ${fieldAccessors}
     const fieldTypes = [...new Set(fields.map(f => f.fieldType))]
     const imports = this.generateFieldQueryImports(fieldTypes)
     
-    return `import { Database, QueryBuilder, QueryState, ${imports} } from '@niquola/tsql'
+    return `import { Database, QueryBuilder, QueryState, ${imports} } from 'dbuddy'
 
 ${interfaceCode}
 

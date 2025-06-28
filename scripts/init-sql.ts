@@ -17,7 +17,7 @@ async function initDatabase() {
     const db = new Database({
       host: process.env.PGHOST || 'localhost',
       port: parseInt(process.env.PGPORT || '15432', 10), // Use docker-compose port
-      database: process.env.PGDATABASE || 'tsql_dev',   // Use docker-compose database
+      database: process.env.PGDATABASE || 'dbuddy_dev',   // Use docker-compose database
       user: process.env.PGUSER || 'postgres',
       password: process.env.PGPASSWORD || 'postgres'
     })

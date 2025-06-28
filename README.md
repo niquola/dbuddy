@@ -1,18 +1,18 @@
-# TSQL
+# DBuddy
 
 A TypeScript SQL library for PostgreSQL.
 
-[![npm version](https://badge.fury.io/js/@niquola/tsql.svg)](https://badge.fury.io/js/@niquola/tsql)
-[![npm downloads](https://img.shields.io/npm/dm/@niquola/tsql.svg)](https://www.npmjs.com/package/@niquola/tsql)
+[![npm version](https://badge.fury.io/js/dbuddy.svg)](https://badge.fury.io/js/dbuddy)
+[![npm downloads](https://img.shields.io/npm/dm/dbuddy.svg)](https://www.npmjs.com/package/dbuddy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Installation
 
 ```bash
-npm install @niquola/tsql
+npm install dbuddy
 
 # Or install the beta version
-npm install @niquola/tsql@beta
+npm install dbuddy@beta
 ```
 
 ## Development Setup
@@ -42,12 +42,12 @@ Edit `.env` with your database configuration:
 # Standard PostgreSQL environment variables
 PGHOST=localhost
 PGPORT=15432
-PGDATABASE=tsql_dev
+PGDATABASE=dbuddy_dev
 PGUSER=postgres
 PGPASSWORD=postgres
 
 # Alternative: use DATABASE_URL
-# DATABASE_URL=postgresql://postgres:postgres@localhost:15432/tsql_dev
+# DATABASE_URL=postgresql://postgres:postgres@localhost:15432/dbuddy_dev
 ```
 
 ### Database Setup
@@ -59,7 +59,7 @@ docker-compose up -d
 ```
 
 The database will be available at `localhost:15432` with:
-- Database: `tsql_dev`
+- Database: `dbuddy_dev`
 - User: `postgres`
 - Password: `postgres`
 
@@ -97,13 +97,13 @@ Generate TypeScript interfaces and query builders from your database schema:
 
 ```bash
 # Generate types for all tables
-npx tsql
+npx dbuddy
 
 # Generate types for all tables in a specific directory
-npx tsql ./my-types
+npx dbuddy ./my-types
 
 # Generate types for specific tables only
-npx tsql ./generated users posts comments
+npx dbuddy ./generated users posts comments
 
 # Via npm scripts (alternative)
 npm run generate
@@ -118,7 +118,7 @@ This will create TypeScript files with:
 ### Usage
 
 ```typescript
-import { Database, getDatabaseConfig } from 'tsql'
+import { Database, getDatabaseConfig } from 'dbuddy'
 
 // Option 1: Use environment variables (reads from .env automatically)
 const db = new Database()
@@ -127,7 +127,7 @@ const db = new Database()
 const db2 = new Database({
   host: 'localhost',
   port: 15432,
-  database: 'tsql_dev',
+  database: 'dbuddy_dev',
   user: 'postgres',
   password: 'postgres'
 })
@@ -152,7 +152,7 @@ await db.close()
 After generating types, you can use them for type-safe database queries:
 
 ```typescript
-import { Database } from 'tsql'
+import { Database } from 'dbuddy'
 import { userQuery, User } from './generated'
 
 const db = new Database()
@@ -169,26 +169,26 @@ console.log(users[0].firstName) // Type-safe property access
 
 ### Database Migrations
 
-TSQL includes a comprehensive migration system for managing database schema changes:
+DBuddy includes a comprehensive migration system for managing database schema changes:
 
 ```bash
 # Initialize migration system
-npx tsql migration init
+npx dbuddy migration init
 
 # Create a new migration
-npx tsql migration create add_users_table
+npx dbuddy migration create add_users_table
 
 # Apply pending migrations
-npx tsql migration up
+npx dbuddy migration up
 
 # Check migration status
-npx tsql migration status
+npx dbuddy migration status
 
 # Rollback migrations
-npx tsql migration down
+npx dbuddy migration down
 
 # Dry run (preview without executing)
-npx tsql migration up --dry-run
+npx dbuddy migration up --dry-run
 ```
 
 See [MIGRATION.md](./MIGRATION.md) for complete migration documentation.

@@ -1,21 +1,21 @@
 # Migration System
 
-The TSQL library includes a robust migration system for managing database schema changes. This system allows you to version control your database schema and apply changes in a controlled, reproducible manner.
+The DBuddy library includes a robust migration system for managing database schema changes. This system allows you to version control your database schema and apply changes in a controlled, reproducible manner.
 
 ## Quick Start
 
 ### 1. Initialize Migration System
 
 ```bash
-npx tsql migration init
+npx dbuddy migration init
 ```
 
-This creates the `tsql_migrations` table in your database to track applied migrations.
+This creates the `dbuddy_migrations` table in your database to track applied migrations.
 
 ### 2. Create a Migration
 
 ```bash
-npx tsql migration create add_users_table
+npx dbuddy migration create add_users_table
 ```
 
 This generates two files:
@@ -54,48 +54,48 @@ DROP TABLE IF EXISTS users;
 
 ```bash
 # Apply all pending migrations
-npx tsql migration up
+npx dbuddy migration up
 
 # Apply migrations up to a specific version
-npx tsql migration up --target 20250628120000
+npx dbuddy migration up --target 20250628120000
 
 # Dry run (preview what would be applied)
-npx tsql migration up --dry-run
+npx dbuddy migration up --dry-run
 ```
 
 ### 5. Check Migration Status
 
 ```bash
-npx tsql migration status
+npx dbuddy migration status
 ```
 
 ### 6. Rollback Migrations
 
 ```bash
 # Rollback the most recent migration
-npx tsql migration down
+npx dbuddy migration down
 
 # Rollback to a specific version
-npx tsql migration down --target 20250628120000
+npx dbuddy migration down --target 20250628120000
 
 # Dry run rollback
-npx tsql migration down --dry-run
+npx dbuddy migration down --dry-run
 ```
 
 ## CLI Commands
 
 ### `migration init`
-Initializes the migration system by creating the `tsql_migrations` table.
+Initializes the migration system by creating the `dbuddy_migrations` table.
 
 ```bash
-npx tsql migration init
+npx dbuddy migration init
 ```
 
 ### `migration create <name>`
 Creates a new migration with the specified name.
 
 ```bash
-npx tsql migration create add_posts_table
+npx dbuddy migration create add_posts_table
 ```
 
 **Options:**
@@ -106,13 +106,13 @@ Applies pending migrations.
 
 ```bash
 # Apply all pending migrations
-npx tsql migration up
+npx dbuddy migration up
 
 # Apply up to specific version
-npx tsql migration up --target 20250628120000
+npx dbuddy migration up --target 20250628120000
 
 # Dry run
-npx tsql migration up --dry-run
+npx dbuddy migration up --dry-run
 ```
 
 **Options:**
@@ -125,13 +125,13 @@ Rolls back applied migrations.
 
 ```bash
 # Rollback most recent migration
-npx tsql migration down
+npx dbuddy migration down
 
 # Rollback to specific version  
-npx tsql migration down --target 20250628120000
+npx dbuddy migration down --target 20250628120000
 
 # Dry run
-npx tsql migration down --dry-run
+npx dbuddy migration down --dry-run
 ```
 
 **Options:**
@@ -143,7 +143,7 @@ npx tsql migration down --dry-run
 Shows the status of all migrations.
 
 ```bash
-npx tsql migration status
+npx dbuddy migration status
 ```
 
 **Options:**
@@ -216,12 +216,12 @@ Use clear, descriptive names for your migrations:
 
 ```bash
 # Good
-npx tsql migration create add_user_email_index
-npx tsql migration create remove_deprecated_status_column
+npx dbuddy migration create add_user_email_index
+npx dbuddy migration create remove_deprecated_status_column
 
 # Bad  
-npx tsql migration create fix_stuff
-npx tsql migration create update_schema
+npx dbuddy migration create fix_stuff
+npx dbuddy migration create update_schema
 ```
 
 ## Programmatic Usage
@@ -229,7 +229,7 @@ npx tsql migration create update_schema
 You can also use the migration system programmatically:
 
 ```typescript
-import { Database, MigrationRunner } from '@niquola/tsql'
+import { Database, MigrationRunner } from 'dbuddy'
 
 const db = new Database()
 const runner = new MigrationRunner(db, './migrations')
@@ -256,10 +256,10 @@ await db.close()
 
 ## Migration Table Schema
 
-The migration system creates a `tsql_migrations` table to track applied migrations:
+The migration system creates a `dbuddy_migrations` table to track applied migrations:
 
 ```sql
-CREATE TABLE tsql_migrations (
+CREATE TABLE dbuddy_migrations (
   id SERIAL PRIMARY KEY,
   version VARCHAR(255) NOT NULL UNIQUE,
   name VARCHAR(255) NOT NULL,
@@ -291,7 +291,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/myapp
 By default, migrations are stored in `./migrations`. You can customize this:
 
 ```bash
-npx tsql migration create add_users --migrations-dir ./db/migrations
+npx dbuddy migration create add_users --migrations-dir ./db/migrations
 ```
 
 ## Troubleshooting
@@ -313,7 +313,7 @@ This usually means the migration files were deleted or moved. The migration trac
 You can manually mark a migration as applied:
 
 ```sql
-INSERT INTO tsql_migrations (version, name, checksum) 
+INSERT INTO dbuddy_migrations (version, name, checksum) 
 VALUES ('20250628120000', 'migration_name', 'dummy_checksum');
 ```
 
@@ -322,7 +322,7 @@ VALUES ('20250628120000', 'migration_name', 'dummy_checksum');
 To completely reset (⚠️ **WARNING: This will lose all data**):
 
 ```sql
-DROP TABLE IF EXISTS tsql_migrations CASCADE;
+DROP TABLE IF EXISTS dbuddy_migrations CASCADE;
 -- Drop all your application tables
 ```
 

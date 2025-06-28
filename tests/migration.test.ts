@@ -26,7 +26,7 @@ describe('Migration System', () => {
     try {
       await db.query('DROP TABLE IF EXISTS test_users CASCADE')
       await db.query('DROP TABLE IF EXISTS test_posts CASCADE')
-      await db.query('DROP TABLE IF EXISTS tsql_migrations CASCADE')
+      await db.query('DROP TABLE IF EXISTS dbuddy_migrations CASCADE')
     } catch (error) {
       // Ignore errors during cleanup
     }
@@ -40,7 +40,7 @@ describe('Migration System', () => {
     try {
       await db.query('DROP TABLE IF EXISTS test_users CASCADE')
       await db.query('DROP TABLE IF EXISTS test_posts CASCADE')
-      await db.query('DROP TABLE IF EXISTS tsql_migrations CASCADE')
+      await db.query('DROP TABLE IF EXISTS dbuddy_migrations CASCADE')
     } catch (error) {
       // Ignore errors during cleanup
     }
@@ -58,7 +58,7 @@ describe('Migration System', () => {
     const result = await db.query(`
       SELECT table_name 
       FROM information_schema.tables 
-      WHERE table_name = 'tsql_migrations'
+      WHERE table_name = 'dbuddy_migrations'
     `)
     
     expect(result.rows).toHaveLength(1)

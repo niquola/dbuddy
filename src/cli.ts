@@ -74,10 +74,10 @@ class CLI {
 
   private showHelp(): void {
     console.log(`
-dbx - TypeScript SQL library CLI
+dbuddy - TypeScript SQL library CLI
 
 Usage:
-  dbx <command> [subcommand] [options]
+  dbuddy <command> [subcommand] [options]
 
 Commands:
   gen-model                    Generate TypeScript models from database schema
@@ -103,18 +103,18 @@ Options:
   --migrations-dir <dir>       Migrations directory (default: ./migrations)
 
 Examples:
-  dbx gen-model
-  dbx gen-model --output ./types
-  dbx gen-model --tables users,posts,comments
-  dbx list-tables
-  dbx show-config
-  dbx sql "SELECT * FROM users LIMIT 10"
-  dbx migration init
-  dbx migration create add_users_table
-  dbx migration up
-  dbx migration down --target 20240101120000
-  dbx migration status
-  dbx --help
+  dbuddy gen-model
+  dbuddy gen-model --output ./types
+  dbuddy gen-model --tables users,posts,comments
+  dbuddy list-tables
+  dbuddy show-config
+  dbuddy sql "SELECT * FROM users LIMIT 10"
+  dbuddy migration init
+  dbuddy migration create add_users_table
+  dbuddy migration up
+  dbuddy migration down --target 20240101120000
+  dbuddy migration status
+  dbuddy --help
 `)
   }
 
@@ -207,7 +207,7 @@ Examples:
   private async runMigrationCreate(args: CliArgs): Promise<void> {
     if (!args.name) {
       console.error('❌ Migration name is required')
-      console.log('Usage: dbx migration create <name>')
+      console.log('Usage: dbuddy migration create <name>')
       process.exit(1)
     }
 
@@ -363,7 +363,7 @@ Examples:
     try {
       if (!args.query) {
         console.error('❌ No SQL query provided')
-        console.log('Usage: dbx sql "SELECT * FROM table"')
+        console.log('Usage: dbuddy sql "SELECT * FROM table"')
         process.exit(1)
       }
       

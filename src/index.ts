@@ -1,5 +1,5 @@
 /**
- * TSQL - TypeScript SQL Library
+ * DBuddy - TypeScript SQL Library
  */
 
 export * from './database'

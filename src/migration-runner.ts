@@ -18,7 +18,7 @@ export class MigrationRunner {
    */
   async initialize(): Promise<void> {
     const createTableSql = `
-      CREATE TABLE IF NOT EXISTS tsql_migrations (
+      CREATE TABLE IF NOT EXISTS dbuddy_migrations (
         id SERIAL PRIMARY KEY,
         version VARCHAR(255) NOT NULL UNIQUE,
         name VARCHAR(255) NOT NULL,
@@ -26,7 +26,7 @@ export class MigrationRunner {
         checksum VARCHAR(255) NOT NULL
       );
       
-      CREATE INDEX IF NOT EXISTS idx_tsql_migrations_version ON tsql_migrations(version);
+      CREATE INDEX IF NOT EXISTS idx_dbuddy_migrations_version ON dbuddy_migrations(version);
     `
     
     await this.db.query(createTableSql)
@@ -140,7 +140,7 @@ export class MigrationRunner {
   private async getAppliedMigrations(): Promise<MigrationRecord[]> {
     try {
       const result = await this.db.query<MigrationRecord>(
-        'SELECT * FROM tsql_migrations ORDER BY version'
+        'SELECT * FROM dbuddy_migrations ORDER BY version'
       )
       return result.rows
     } catch (error) {
@@ -222,7 +222,7 @@ export class MigrationRunner {
           
           // Record migration
           await client.query(
-            'INSERT INTO tsql_migrations (version, name, checksum) VALUES ($1, $2, $3)',
+            'INSERT INTO dbuddy_migrations (version, name, checksum) VALUES ($1, $2, $3)',
             [migration.version, migration.name, checksum]
           )
           
@@ -285,7 +285,7 @@ export class MigrationRunner {
           
           // Remove migration record
           await client.query(
-            'DELETE FROM tsql_migrations WHERE version = $1',
+            'DELETE FROM dbuddy_migrations WHERE version = $1',
             [appliedMigration.version]
           )
           

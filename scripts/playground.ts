@@ -7,7 +7,7 @@ import { execSync } from 'child_process';
 const PLAYGROUND_DIR = './playground';
 
 function createPlayground() {
-  console.log('🎮 Creating DBX TypeScript playground...');
+  console.log('🎮 Creating DBuddy TypeScript playground...');
 
   // Build the current package first
   console.log('🔨 Building current package...');
@@ -35,9 +35,9 @@ function createPlayground() {
 
   // Create package.json
   const packageJson = {
-    name: "dbx-playground",
+    name: "dbuddy-playground",
     version: "1.0.0",
-    description: "TypeScript playground for dbx",
+    description: "TypeScript playground for dbuddy",
     main: "dist/index.js",
     scripts: {
       build: "tsc",
@@ -48,10 +48,10 @@ function createPlayground() {
       "@types/node": "^20.10.0",
       "tsx": "^4.20.3",
       "typescript": "^5.3.0",
-      "dbx": "file:.."
+      "dbuddy": "file:.."
     },
     dependencies: {
-      "dbx": "file:.."
+      "dbuddy": "file:.."
     }
   };
 
@@ -88,10 +88,10 @@ function createPlayground() {
   );
 
   // Create src/index.ts
-  const indexTs = `import { Database, QueryBuilder } from 'dbx';
+  const indexTs = `import { Database, QueryBuilder } from 'dbuddy';
 
 async function main() {
-  console.log('🎮 Welcome to DBX Playground!');
+  console.log('🎮 Welcome to DBuddy Playground!');
   
   // Example: Create a database instance (uncomment when you have a connection string)
   // const db = new Database({ 
@@ -104,7 +104,7 @@ async function main() {
   console.log('✅ QueryBuilder created:', typeof qb);
   
   // Add your playground code here
-  console.log('🚀 Start coding with DBX!');
+  console.log('🚀 Start coding with DBuddy!');
 }
 
 // Run the main function
@@ -114,9 +114,9 @@ main().catch(console.error);
   writeFileSync(join(PLAYGROUND_DIR, 'src', 'index.ts'), indexTs);
 
   // Create README.md
-  const readme = `# DBX Playground
+  const readme = `# DBuddy Playground
 
-A simple TypeScript playground for testing dbx functionality.
+A simple TypeScript playground for testing dbuddy functionality.
 
 ## Getting Started
 
@@ -144,7 +144,7 @@ A simple TypeScript playground for testing dbx functionality.
 
 ## Usage
 
-Edit \`src/index.ts\` to experiment with DBX features. The main function is already set up for you.
+Edit \`src/index.ts\` to experiment with DBuddy features. The main function is already set up for you.
 `;
 
   writeFileSync(join(PLAYGROUND_DIR, 'README.md'), readme);

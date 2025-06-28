@@ -1,4 +1,4 @@
--- Initialize database for TSQL library development
+-- Initialize database for DBuddy library development
 
 -- Create test table
 CREATE TABLE IF NOT EXISTS users (
