@@ -419,6 +419,12 @@ ${exports}
         console.log(`✅ Generated: ${outputPath}`)
       }
 
+      // Generate index file that exports all generated types
+      const indexFileContent = this.generateIndexFile(tableNames)
+      const indexPath = path.join(outputDir, 'index.ts')
+      await fs.writeFile(indexPath, indexFileContent, 'utf8')
+      console.log(`✅ Generated: ${indexPath}`)
+
       console.log(`🎉 Successfully generated types for ${tableNames.length} tables in ${outputDir}`)
 
     } catch (error) {

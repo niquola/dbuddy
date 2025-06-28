@@ -21,13 +21,13 @@ describe('Database', () => {
   })
 
   it('should execute simple query', async () => {
-    const result = await db.query('SELECT 1 as test')
+    const result = await db.query<{ test: number }>('SELECT 1 as test')
     expect(result.rows).toHaveLength(1)
     expect(result.rows[0].test).toBe(1)
   })
 
   it('should execute parameterized query', async () => {
-    const result = await db.query('SELECT $1 as value', ['hello'])
+    const result = await db.query<{ value: string }>('SELECT $1 as value', ['hello'])
     expect(result.rows[0].value).toBe('hello')
   })
 }) 
