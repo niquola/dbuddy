@@ -445,19 +445,4 @@ export async function generateSchema(outputDir: string = './generated', tables?:
   await generator.generate(outputDir, options)
 }
 
-// If run directly
-if (require.main === module) {
-  const args = process.argv.slice(2)
-  const outputDir = args[0] || './generated'
-  
-  // Parse table names from remaining arguments
-  const tables = args.slice(1).length > 0 ? args.slice(1) : undefined
-  
-  if (tables && tables.length > 0) {
-    console.log(`🎯 Generating types for specific tables: ${tables.join(', ')}`)
-  } else {
-    console.log('🎯 Generating types for all tables')
-  }
-  
-  generateSchema(outputDir, tables).catch(console.error)
-} 
+// Note: CLI execution moved to src/cli.ts 

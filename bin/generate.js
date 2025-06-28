@@ -7,14 +7,14 @@ const path = require('path');
 const binDir = __dirname;
 // Get the project root (one level up from bin)
 const projectRoot = path.dirname(binDir);
-// Path to the compiled generator JavaScript file
-const generatorPath = path.join(projectRoot, 'dist', 'generator.js');
+// Path to the compiled CLI JavaScript file
+const cliPath = path.join(projectRoot, 'dist', 'cli.js');
 
-// Pass all command line arguments to the generator
+// Pass all command line arguments to the CLI
 const args = process.argv.slice(2);
 
-// Run the compiled JavaScript generator
-const child = spawn('node', [generatorPath, ...args], {
+// Run the compiled JavaScript CLI
+const child = spawn('node', [cliPath, ...args], {
   stdio: 'inherit',
   cwd: projectRoot
 });
@@ -24,6 +24,6 @@ child.on('close', (code) => {
 });
 
 child.on('error', (error) => {
-  console.error('Failed to start generator:', error.message);
+  console.error('Failed to start CLI:', error.message);
   process.exit(1);
 }); 
