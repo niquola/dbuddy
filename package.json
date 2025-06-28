@@ -1,5 +1,5 @@
 {
-  "name": "tsql",
+  "name": "@niquola/tsql",
   "version": "1.0.1-beta.0",
   "description": "TypeScript SQL library",
   "main": "dist/index.js",
