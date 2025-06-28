@@ -179,18 +179,18 @@ export class QueryBuilder<T> implements BaseQueryBuilder<T, QueryBuilder<T>> {
     const field = typeof fieldName === 'string' ? fieldName : String(fieldName)
     return {
       // JSON-specific operators
-      eq: (value: any) => this.addCondition(field, '=', JSON.stringify(value)),
-      ne: (value: any) => this.addCondition(field, '!=', JSON.stringify(value)),
+      eq: (value: unknown) => this.addCondition(field, '=', JSON.stringify(value)),
+      ne: (value: unknown) => this.addCondition(field, '!=', JSON.stringify(value)),
       
       // JSON path operations
       pathExists: (path: string) => this.addCondition(`${field}#>'{${path}}'`, 'IS NOT NULL', null),
       pathNotExists: (path: string) => this.addCondition(`${field}#>'{${path}}'`, 'IS NULL', null),
-      pathEq: (path: string, value: any) => this.addCondition(`${field}#>>'{${path}}'`, '=', JSON.stringify(value)),
-      pathNe: (path: string, value: any) => this.addCondition(`${field}#>>'{${path}}'`, '!=', JSON.stringify(value)),
+      pathEq: (path: string, value: unknown) => this.addCondition(`${field}#>>'{${path}}'`, '=', JSON.stringify(value)),
+      pathNe: (path: string, value: unknown) => this.addCondition(`${field}#>>'{${path}}'`, '!=', JSON.stringify(value)),
       
       // JSON containment
-      contains: (value: any) => this.addCondition(field, '@>', JSON.stringify(value)),
-      containedBy: (value: any) => this.addCondition(field, '<@', JSON.stringify(value)),
+      contains: (value: unknown) => this.addCondition(field, '@>', JSON.stringify(value)),
+      containedBy: (value: unknown) => this.addCondition(field, '<@', JSON.stringify(value)),
       hasKey: (key: string) => this.addCondition(field, '?', key),
       hasAnyKeys: (keys: string[]) => this.addCondition(field, '?|', keys),
       hasAllKeys: (keys: string[]) => this.addCondition(field, '?&', keys),
@@ -201,7 +201,7 @@ export class QueryBuilder<T> implements BaseQueryBuilder<T, QueryBuilder<T>> {
     }
   }
 
-  private addCondition(field: string, operator: string, value: any): this {
+  private addCondition(field: string, operator: string, value: unknown): this {
     const newCondition: WhereCondition = { field, operator, value }
     return this.clone({
       conditions: [...this.state.conditions, newCondition]
@@ -224,20 +224,22 @@ export class QueryBuilder<T> implements BaseQueryBuilder<T, QueryBuilder<T>> {
   }
 
   // Build SQL query
-  build(): { sql: string; params: any[] } {
+  build(): { sql: string; params: unknown[] } {
     let sql = `SELECT * FROM ${this.state.table}`
-    const params: any[] = []
+    const params: unknown[] = []
     let paramIndex = 1
 
     // WHERE conditions
     if (this.state.conditions.length > 0) {
       const whereClause = this.state.conditions.map(condition => {
         if (condition.operator === 'IN') {
-          const placeholders = condition.value.map(() => `$${paramIndex++}`).join(', ')
-          params.push(...condition.value)
+          const valueArray = condition.value as unknown[]
+          const placeholders = valueArray.map(() => `$${paramIndex++}`).join(', ')
+          params.push(...valueArray)
           return `${condition.field} IN (${placeholders})`
         } else if (condition.operator === 'BETWEEN' || condition.operator === 'NOT BETWEEN') {
-          params.push(condition.value[0], condition.value[1])
+          const valueArray = condition.value as [unknown, unknown]
+          params.push(valueArray[0], valueArray[1])
           return `${condition.field} ${condition.operator} $${paramIndex++} AND $${paramIndex++}`
         } else if (condition.operator === 'IS NULL' || condition.operator === 'IS NOT NULL') {
           return `${condition.field} ${condition.operator}`

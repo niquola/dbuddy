@@ -6,7 +6,7 @@ export interface DatabaseConfig {
   password: string
 }
 
-export interface QueryResult<T = any> {
+export interface QueryResult<T = unknown> {
   rows: T[]
   rowCount: number
 }
@@ -15,7 +15,7 @@ export interface QueryResult<T = any> {
 export interface WhereCondition {
   field: string
   operator: string
-  value: any
+  value: unknown
 }
 
 export interface QueryState {
@@ -35,7 +35,7 @@ export interface BaseQueryBuilder<T, TBuilder> {
   orderBy(field: keyof T, direction?: 'ASC' | 'DESC'): TBuilder
   limit(count: number): TBuilder
   offset(count: number): TBuilder
-  build(): { sql: string; params: any[] }
+  build(): { sql: string; params: unknown[] }
   execute(): Promise<QueryResult<T>>
 }
 
@@ -163,18 +163,18 @@ export interface BooleanFieldQuery<TBuilder> {
 
 export interface JsonFieldQuery<TBuilder> {
   // JSON-specific operators
-  eq(value: any): TBuilder
-  ne(value: any): TBuilder
+  eq(value: unknown): TBuilder
+  ne(value: unknown): TBuilder
   
   // JSON path operations
   pathExists(path: string): TBuilder
   pathNotExists(path: string): TBuilder
-  pathEq(path: string, value: any): TBuilder
-  pathNe(path: string, value: any): TBuilder
+  pathEq(path: string, value: unknown): TBuilder
+  pathNe(path: string, value: unknown): TBuilder
   
   // JSON containment
-  contains(value: any): TBuilder
-  containedBy(value: any): TBuilder
+  contains(value: unknown): TBuilder
+  containedBy(value: unknown): TBuilder
   hasKey(key: string): TBuilder
   hasAnyKeys(keys: string[]): TBuilder
   hasAllKeys(keys: string[]): TBuilder

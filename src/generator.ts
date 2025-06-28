@@ -1,4 +1,5 @@
 import { Database } from './database'
+import { DatabaseConfig } from './types'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 
@@ -27,7 +28,7 @@ interface FieldInfo {
 export class SchemaGenerator {
   private db: Database
 
-  constructor(config?: any) {
+  constructor(config?: DatabaseConfig) {
     this.db = config ? new Database(config) : new Database()
   }
 
@@ -75,7 +76,15 @@ export class SchemaGenerator {
       ORDER BY ordinal_position;
     `
     
-    const result = await this.db.query<any>(query, [tableName])
+    const result = await this.db.query<{
+      column_name: string;
+      data_type: string;
+      is_nullable: string;
+      column_default: string | null;
+      max_length: number | null;
+      numeric_precision: number | null;
+      numeric_scale: number | null;
+    }>(query, [tableName])
     return result.rows.map(row => ({
       columnName: row.column_name,
       dataType: row.data_type,
@@ -123,7 +132,7 @@ export class SchemaGenerator {
       
       case 'json':
       case 'jsonb':
-        tsType = 'any'
+        tsType = 'Record<string, unknown>'
         break
       
       case 'uuid':

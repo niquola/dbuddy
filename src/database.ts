@@ -11,7 +11,7 @@ export class Database {
     this.pool = new Pool(dbConfig)
   }
 
-  async query<T = any>(text: string, params?: any[]): Promise<QueryResult<T>> {
+  async query<T = unknown>(text: string, params?: unknown[]): Promise<QueryResult<T>> {
     const client = await this.pool.connect()
     try {
       const result = await client.query(text, params)
