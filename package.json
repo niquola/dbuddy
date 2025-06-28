@@ -1,12 +1,12 @@
 {
   "name": "dbx",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "description": "postgres library",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "bin": {
-    "dbx": "./bin/dbx.js"
+    "dbx": "bin/dbx.js"
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts && tsup src/generator.ts --format cjs && tsup src/cli.ts --format cjs && tsup src/migration-runner.ts --format cjs",

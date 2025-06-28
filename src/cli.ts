@@ -20,6 +20,11 @@ interface CliArgs {
   [key: string]: unknown
 }
 
+interface MigrationOptions {
+  target?: string
+  dryRun?: boolean
+}
+
 class CLI {
   private parseArgs(args: string[]): CliArgs {
     const parsed: CliArgs = {
@@ -220,7 +225,7 @@ Examples:
     const runner = this.getMigrationRunner(args)
     
     try {
-      const options: any = {}
+      const options: MigrationOptions = {}
       if (args.target) options.target = args.target
       if (args.dryRun) options.dryRun = args.dryRun
       
@@ -235,7 +240,7 @@ Examples:
     const runner = this.getMigrationRunner(args)
     
     try {
-      const options: any = {}
+      const options: MigrationOptions = {}
       if (args.target) options.target = args.target
       if (args.dryRun) options.dryRun = args.dryRun
       
@@ -369,7 +374,7 @@ Examples:
       console.log()
       
       const startTime = Date.now()
-      const result = await db.query<Record<string, any>>(query)
+      const result = await db.query<Record<string, unknown>>(query)
       const endTime = Date.now()
       const executionTime = endTime - startTime
       
