@@ -1,6 +1,6 @@
 {
   "name": "@niquola/tsql",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "TypeScript SQL library",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
