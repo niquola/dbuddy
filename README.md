@@ -2,6 +2,19 @@
 
 A TypeScript SQL library for PostgreSQL.
 
+[![npm version](https://badge.fury.io/js/@niquola/tsql.svg)](https://badge.fury.io/js/@niquola/tsql)
+[![npm downloads](https://img.shields.io/npm/dm/@niquola/tsql.svg)](https://www.npmjs.com/package/@niquola/tsql)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Installation
+
+```bash
+npm install @niquola/tsql
+
+# Or install the beta version
+npm install @niquola/tsql@beta
+```
+
 ## Development Setup
 
 ### Prerequisites
