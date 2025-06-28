@@ -48,4 +48,7 @@ tmp/
 
 # Generated files
 generated/
-example-output/ 
+example-output/
+
+# npm pack tarballs
+*.tgz 

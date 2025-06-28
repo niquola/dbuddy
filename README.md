@@ -167,6 +167,32 @@ const users = await userQuery(db)
 console.log(users[0].firstName) // Type-safe property access
 ```
 
+### Database Migrations
+
+TSQL includes a comprehensive migration system for managing database schema changes:
+
+```bash
+# Initialize migration system
+npx tsql-generate migration init
+
+# Create a new migration
+npx tsql-generate migration create add_users_table
+
+# Apply pending migrations
+npx tsql-generate migration up
+
+# Check migration status
+npx tsql-generate migration status
+
+# Rollback migrations
+npx tsql-generate migration down
+
+# Dry run (preview without executing)
+npx tsql-generate migration up --dry-run
+```
+
+See [MIGRATION.md](./MIGRATION.md) for complete migration documentation.
+
 ## License
 
 MIT 

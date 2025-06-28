@@ -1,8 +1,48 @@
 import { config } from 'dotenv'
 import { DatabaseConfig } from './types'
+import path from 'path'
+import fs from 'fs'
 
-// Load environment variables from .env file
-config()
+// Function to find the base project directory where npx was called
+export function getProjectBaseDirectory(): string {
+  // First try the directory where npm command was originally run
+  const initCwd = process.env.INIT_CWD
+  if (initCwd && fs.existsSync(initCwd)) {
+    return initCwd
+  }
+
+  // Fallback: current working directory
+  return process.cwd()
+}
+
+// Function to find .env file starting from the project base directory
+function findEnvFile(): string | undefined {
+  const baseDir = getProjectBaseDirectory()
+  
+  // First try the base directory
+  const envPath = path.join(baseDir, '.env')
+  if (fs.existsSync(envPath)) {
+    return envPath
+  }
+
+  // Fallback: search up the directory tree from base directory
+  let currentDir = baseDir
+  while (currentDir !== path.dirname(currentDir)) {
+    const envPath = path.join(currentDir, '.env')
+    if (fs.existsSync(envPath)) {
+      return envPath
+    }
+    currentDir = path.dirname(currentDir)
+  }
+
+  return undefined
+}
+
+// Load environment variables from .env file in the directory where npx was called
+const envPath = findEnvFile()
+if (envPath) {
+  config({ path: envPath })
+}
 
 export function getDatabaseConfig(): DatabaseConfig {
   return {
@@ -18,4 +58,14 @@ export function getDatabaseUrl(): string {
   const dbConfig = getDatabaseConfig()
   return process.env.DATABASE_URL || 
     `postgresql://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`
+}
+
+// Function to resolve output directory relative to project base
+export function resolveOutputDirectory(outputDir: string): string {
+  if (path.isAbsolute(outputDir)) {
+    return outputDir
+  }
+  
+  const baseDir = getProjectBaseDirectory()
+  return path.resolve(baseDir, outputDir)
 } 

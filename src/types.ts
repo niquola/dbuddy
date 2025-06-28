@@ -182,4 +182,34 @@ export interface JsonFieldQuery<TBuilder> {
   // Null checks
   isNull(): TBuilder
   isNotNull(): TBuilder
+}
+
+export interface Migration {
+  version: string
+  name: string
+  upSql: string
+  downSql: string
+  appliedAt?: Date
+  checksum?: string
+}
+
+export interface MigrationRecord {
+  id: number
+  version: string
+  name: string
+  applied_at: Date
+  checksum: string
+}
+
+export interface MigrationStatus {
+  version: string
+  name: string
+  status: 'pending' | 'applied'
+  appliedAt?: Date
+}
+
+export interface MigrationOptions {
+  migrationsDir?: string
+  target?: string
+  dryRun?: boolean
 } 

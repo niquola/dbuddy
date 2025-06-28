@@ -1,5 +1,6 @@
 import { Database } from './database'
 import { DatabaseConfig } from './types'
+import { resolveOutputDirectory } from './config'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 
@@ -292,7 +293,7 @@ ${fieldAccessors}
     const fieldTypes = [...new Set(fields.map(f => f.fieldType))]
     const imports = this.generateFieldQueryImports(fieldTypes)
     
-    return `import { Database, QueryBuilder, QueryState, ${imports} } from 'tsql'
+    return `import { Database, QueryBuilder, QueryState, ${imports} } from '@niquola/tsql'
 
 ${interfaceCode}
 
@@ -369,6 +370,9 @@ ${exports}
    */
   async generate(outputDir: string, options?: { tables?: string[] }): Promise<void> {
     try {
+      // Resolve output directory relative to where npx was called
+      const resolvedOutputDir = resolveOutputDirectory(outputDir)
+      
       const filterTables = options?.tables
       
       if (filterTables && filterTables.length > 0) {
@@ -400,7 +404,7 @@ ${exports}
       console.log(`📋 Processing ${tableNames.length} tables: ${tableNames.join(', ')}`)
 
       // Ensure output directory exists
-      await this.ensureDirectory(outputDir)
+      await this.ensureDirectory(resolvedOutputDir)
 
       // Generate type files for each table
       const tableInfos: TableInfo[] = []
@@ -413,7 +417,7 @@ ${exports}
         tableInfos.push(tableInfo)
         
         const typeFileContent = this.generateTypeFile(tableInfo)
-        const outputPath = path.join(outputDir, `${tableName}.ts`)
+        const outputPath = path.join(resolvedOutputDir, `${tableName}.ts`)
         
         await fs.writeFile(outputPath, typeFileContent, 'utf8')
         console.log(`✅ Generated: ${outputPath}`)
@@ -421,11 +425,11 @@ ${exports}
 
       // Generate index file that exports all generated types
       const indexFileContent = this.generateIndexFile(tableNames)
-      const indexPath = path.join(outputDir, 'index.ts')
+      const indexPath = path.join(resolvedOutputDir, 'index.ts')
       await fs.writeFile(indexPath, indexFileContent, 'utf8')
       console.log(`✅ Generated: ${indexPath}`)
 
-      console.log(`🎉 Successfully generated types for ${tableNames.length} tables in ${outputDir}`)
+      console.log(`🎉 Successfully generated types for ${tableNames.length} tables in ${resolvedOutputDir}`)
 
     } catch (error) {
       console.error('❌ Error generating schema:', error)
