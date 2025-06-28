@@ -10,8 +10,8 @@
     "dbuddy-mcp": "bin/dbuddy-mcp.js"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts && tsup src/generator.ts --format cjs && tsup src/cli.ts --format cjs && tsup src/migration-runner.ts --format cjs && tsup src/mcp-server.ts --format cjs",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "build": "tsup src/index.ts --format cjs,esm --dts --external pg && tsup src/generator.ts --format cjs --external pg && tsup src/cli.ts --format cjs --external pg && tsup src/migration-runner.ts --format cjs --external pg && tsup src/mcp-server.ts --format cjs --external pg",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --external pg --watch",
     "test": "vitest run",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -45,7 +45,6 @@
     "@vitest/coverage-v8": "^1.0.0",
     "dotenv": "^16.3.1",
     "eslint": "^8.54.0",
-    "pg": "^8.11.3",
     "tsup": "^8.0.0",
     "tsx": "^4.20.3",
     "typescript": "^5.3.0",
@@ -64,6 +63,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",
+    "pg": "^8.11.3",
     "zod": "^3.24.1"
   }
 }
