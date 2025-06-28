@@ -3,7 +3,7 @@
 import { Database } from './database'
 import { SchemaGenerator } from './generator'
 import { MigrationRunner } from './migration-runner'
-import { getProjectBaseDirectory } from './config'
+import { getProjectBaseDirectory, getDatabaseConfig } from './config'
 import path from 'path'
 
 interface CliArgs {
@@ -16,6 +16,7 @@ interface CliArgs {
   dryRun?: boolean
   migrationsDir?: string
   name?: string
+  query?: string
   [key: string]: unknown
 }
 
@@ -53,6 +54,9 @@ class CLI {
         parsed.migrationsDir = args[++i]
       } else if (!arg.startsWith('-') && !parsed.command) {
         parsed.command = arg
+      } else if (!arg.startsWith('-') && !parsed.query && parsed.command === 'sql') {
+        // Handle SQL queries BEFORE subcommands
+        parsed.query = arg
       } else if (!arg.startsWith('-') && !parsed.subcommand && parsed.command) {
         parsed.subcommand = arg
       } else if (!arg.startsWith('-') && !parsed.name && parsed.command === 'migration' && parsed.subcommand === 'create') {
@@ -65,14 +69,16 @@ class CLI {
 
   private showHelp(): void {
     console.log(`
-tsql-generate - TypeScript SQL library CLI
+dbx - TypeScript SQL library CLI
 
 Usage:
-  tsql-generate <command> [subcommand] [options]
+  dbx <command> [subcommand] [options]
 
 Commands:
   gen-model                    Generate TypeScript models from database schema
   list-tables                  List all tables in the database
+  show-config                  Show database connection configuration
+  sql <query>                  Execute SQL query
   migration <subcommand>       Migration management commands
   help                         Show this help message
 
@@ -92,16 +98,18 @@ Options:
   --migrations-dir <dir>       Migrations directory (default: ./migrations)
 
 Examples:
-  tsql-generate gen-model
-  tsql-generate gen-model --output ./types
-  tsql-generate gen-model --tables users,posts,comments
-  tsql-generate list-tables
-  tsql-generate migration init
-  tsql-generate migration create add_users_table
-  tsql-generate migration up
-  tsql-generate migration down --target 20240101120000
-  tsql-generate migration status
-  tsql-generate --help
+  dbx gen-model
+  dbx gen-model --output ./types
+  dbx gen-model --tables users,posts,comments
+  dbx list-tables
+  dbx show-config
+  dbx sql "SELECT * FROM users LIMIT 10"
+  dbx migration init
+  dbx migration create add_users_table
+  dbx migration up
+  dbx migration down --target 20240101120000
+  dbx migration status
+  dbx --help
 `)
   }
 
@@ -194,7 +202,7 @@ Examples:
   private async runMigrationCreate(args: CliArgs): Promise<void> {
     if (!args.name) {
       console.error('❌ Migration name is required')
-      console.log('Usage: tsql-generate migration create <name>')
+      console.log('Usage: dbx migration create <name>')
       process.exit(1)
     }
 
@@ -283,6 +291,147 @@ Examples:
     }
   }
 
+  private async runShowConfig(): Promise<void> {
+    try {
+      console.log('🔧 Database Connection Configuration\n')
+      
+      const config = getDatabaseConfig()
+      
+      // Display configuration in a nice table format
+      console.log('┌─' + '─'.repeat(50) + '┐')
+      console.log('│ Configuration' + ' '.repeat(36) + '│')
+      console.log('├─' + '─'.repeat(15) + '┬─' + '─'.repeat(34) + '┤')
+      console.log(`│ Host           │ ${config.host.padEnd(32)} │`)
+      console.log(`│ Port           │ ${config.port.toString().padEnd(32)} │`)
+      console.log(`│ Database       │ ${config.database.padEnd(32)} │`)
+      console.log(`│ User           │ ${config.user.padEnd(32)} │`)
+      console.log(`│ Password       │ ${config.password ? '●'.repeat(Math.min(config.password.length, 8)) : '(not set)'.padEnd(32)} │`)
+      console.log('└─' + '─'.repeat(15) + '┴─' + '─'.repeat(34) + '┘')
+      
+      // Show environment variables being used
+      console.log('\n📋 Environment Variables:')
+      console.log('  • PGHOST or DATABASE_HOST')
+      console.log('  • PGPORT or DATABASE_PORT')  
+      console.log('  • PGDATABASE or DATABASE_NAME')
+      console.log('  • PGUSER or DATABASE_USER')
+      console.log('  • PGPASSWORD or DATABASE_PASSWORD')
+      console.log('  • DATABASE_URL (alternative to individual variables)')
+      
+      // Show which env vars are currently set
+      const envVars = [
+        { name: 'PGHOST', value: process.env.PGHOST },
+        { name: 'PGPORT', value: process.env.PGPORT },
+        { name: 'PGDATABASE', value: process.env.PGDATABASE },
+        { name: 'PGUSER', value: process.env.PGUSER },
+        { name: 'PGPASSWORD', value: process.env.PGPASSWORD },
+        { name: 'DATABASE_HOST', value: process.env.DATABASE_HOST },
+        { name: 'DATABASE_PORT', value: process.env.DATABASE_PORT },
+        { name: 'DATABASE_NAME', value: process.env.DATABASE_NAME },
+        { name: 'DATABASE_USER', value: process.env.DATABASE_USER },
+        { name: 'DATABASE_PASSWORD', value: process.env.DATABASE_PASSWORD },
+        { name: 'DATABASE_URL', value: process.env.DATABASE_URL }
+      ]
+      
+      const setVars = envVars.filter(env => env.value !== undefined)
+      
+      if (setVars.length > 0) {
+        console.log('\n✅ Currently Set Environment Variables:')
+        setVars.forEach(env => {
+          const value = env.name.includes('PASSWORD') || env.name.includes('URL') 
+            ? (env.value ? '●'.repeat(Math.min(env.value.length, 8)) : '') 
+            : env.value
+          console.log(`  • ${env.name}=${value}`)
+        })
+      } else {
+        console.log('\n⚠️  No environment variables set - using defaults')
+      }
+      
+    } catch (error) {
+      console.error('❌ Error showing configuration:', error)
+      process.exit(1)
+    }
+  }
+
+  private async runSql(args: CliArgs): Promise<void> {
+    const db = new Database()
+    
+    try {
+      if (!args.query) {
+        console.error('❌ No SQL query provided')
+        console.log('Usage: dbx sql "SELECT * FROM table"')
+        process.exit(1)
+      }
+      
+      const query = args.query
+      
+      console.log('🎯 Executing SQL query...')
+      console.log(`📝 Query: ${query.trim()}`)
+      console.log()
+      
+      const startTime = Date.now()
+      const result = await db.query<Record<string, any>>(query)
+      const endTime = Date.now()
+      const executionTime = endTime - startTime
+      
+      // Handle different types of results
+      if (result.rows && result.rows.length > 0) {
+        // SELECT query with results
+        console.log(`📊 Query returned ${result.rows.length} rows:\n`)
+        
+        // Get column names from first row
+        const columns = Object.keys(result.rows[0])
+        const maxWidths = columns.map(col => 
+          Math.max(col.length, ...result.rows.map(row => 
+            String(row[col] ?? '').length
+          ))
+        )
+        
+        // Create table header
+        const headerSeparator = '┌─' + maxWidths.map(w => '─'.repeat(w + 2)).join('─┬─') + '─┐'
+        const rowSeparator = '├─' + maxWidths.map(w => '─'.repeat(w + 2)).join('─┼─') + '─┤'
+        const footerSeparator = '└─' + maxWidths.map(w => '─'.repeat(w + 2)).join('─┴─') + '─┘'
+        
+        console.log(headerSeparator)
+        
+        // Header row
+        const header = '│ ' + columns.map((col, i) => col.padEnd(maxWidths[i])).join(' │ ') + ' │'
+        console.log(header)
+        console.log(rowSeparator)
+        
+        // Data rows
+        result.rows.forEach((row, index) => {
+          const rowStr = '│ ' + columns.map((col, i) => 
+            String(row[col] ?? '').padEnd(maxWidths[i])
+          ).join(' │ ') + ' │'
+          console.log(rowStr)
+          
+          // Add separator every 20 rows for readability
+          if (index > 0 && index % 20 === 19 && index < result.rows.length - 1) {
+            console.log(rowSeparator)
+          }
+        })
+        
+        console.log(footerSeparator)
+        
+      } else if (result.rowCount !== undefined) {
+        // INSERT/UPDATE/DELETE query
+        console.log(`✅ Query executed successfully`)
+        console.log(`📊 Rows affected: ${result.rowCount}`)
+      } else {
+        // Other queries (CREATE TABLE, etc.)
+        console.log(`✅ Query executed successfully`)
+      }
+      
+      console.log(`⏱️  Execution time: ${executionTime}ms`)
+      
+    } catch (error) {
+      console.error('❌ Error executing SQL:', error)
+      process.exit(1)
+    } finally {
+      await db.close()
+    }
+  }
+
   async run(argv: string[]): Promise<void> {
     const args = this.parseArgs(argv.slice(2))
     
@@ -302,13 +451,20 @@ Examples:
         await this.runListTables()
         break
         
+      case 'show-config':
+        await this.runShowConfig()
+        break
+        
+      case 'sql':
+        await this.runSql(args)
+        break
+        
       case 'migration':
         await this.runMigrationCommand(args)
         break
         
       case undefined:
-        console.log('❌ No command specified. Use --help for usage information.')
-        process.exit(1)
+        this.showHelp()
         break
         
       default:

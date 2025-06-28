@@ -52,3 +52,5 @@ example-output/
 
 # npm pack tarballs
 *.tgz 
+
+playground/

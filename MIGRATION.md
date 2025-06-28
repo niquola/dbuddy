@@ -7,7 +7,7 @@ The TSQL library includes a robust migration system for managing database schema
 ### 1. Initialize Migration System
 
 ```bash
-npx tsql-generate migration init
+npx tsql migration init
 ```
 
 This creates the `tsql_migrations` table in your database to track applied migrations.
@@ -15,7 +15,7 @@ This creates the `tsql_migrations` table in your database to track applied migra
 ### 2. Create a Migration
 
 ```bash
-npx tsql-generate migration create add_users_table
+npx tsql migration create add_users_table
 ```
 
 This generates two files:
@@ -54,32 +54,32 @@ DROP TABLE IF EXISTS users;
 
 ```bash
 # Apply all pending migrations
-npx tsql-generate migration up
+npx tsql migration up
 
 # Apply migrations up to a specific version
-npx tsql-generate migration up --target 20250628120000
+npx tsql migration up --target 20250628120000
 
 # Dry run (preview what would be applied)
-npx tsql-generate migration up --dry-run
+npx tsql migration up --dry-run
 ```
 
 ### 5. Check Migration Status
 
 ```bash
-npx tsql-generate migration status
+npx tsql migration status
 ```
 
 ### 6. Rollback Migrations
 
 ```bash
 # Rollback the most recent migration
-npx tsql-generate migration down
+npx tsql migration down
 
 # Rollback to a specific version
-npx tsql-generate migration down --target 20250628120000
+npx tsql migration down --target 20250628120000
 
 # Dry run rollback
-npx tsql-generate migration down --dry-run
+npx tsql migration down --dry-run
 ```
 
 ## CLI Commands
@@ -88,14 +88,14 @@ npx tsql-generate migration down --dry-run
 Initializes the migration system by creating the `tsql_migrations` table.
 
 ```bash
-npx tsql-generate migration init
+npx tsql migration init
 ```
 
 ### `migration create <name>`
 Creates a new migration with the specified name.
 
 ```bash
-npx tsql-generate migration create add_posts_table
+npx tsql migration create add_posts_table
 ```
 
 **Options:**
@@ -106,13 +106,13 @@ Applies pending migrations.
 
 ```bash
 # Apply all pending migrations
-npx tsql-generate migration up
+npx tsql migration up
 
 # Apply up to specific version
-npx tsql-generate migration up --target 20250628120000
+npx tsql migration up --target 20250628120000
 
 # Dry run
-npx tsql-generate migration up --dry-run
+npx tsql migration up --dry-run
 ```
 
 **Options:**
@@ -125,13 +125,13 @@ Rolls back applied migrations.
 
 ```bash
 # Rollback most recent migration
-npx tsql-generate migration down
+npx tsql migration down
 
 # Rollback to specific version  
-npx tsql-generate migration down --target 20250628120000
+npx tsql migration down --target 20250628120000
 
 # Dry run
-npx tsql-generate migration down --dry-run
+npx tsql migration down --dry-run
 ```
 
 **Options:**
@@ -143,7 +143,7 @@ npx tsql-generate migration down --dry-run
 Shows the status of all migrations.
 
 ```bash
-npx tsql-generate migration status
+npx tsql migration status
 ```
 
 **Options:**
@@ -216,12 +216,12 @@ Use clear, descriptive names for your migrations:
 
 ```bash
 # Good
-npx tsql-generate migration create add_user_email_index
-npx tsql-generate migration create remove_deprecated_status_column
+npx tsql migration create add_user_email_index
+npx tsql migration create remove_deprecated_status_column
 
 # Bad  
-npx tsql-generate migration create fix_stuff
-npx tsql-generate migration create update_schema
+npx tsql migration create fix_stuff
+npx tsql migration create update_schema
 ```
 
 ## Programmatic Usage
@@ -291,7 +291,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/myapp
 By default, migrations are stored in `./migrations`. You can customize this:
 
 ```bash
-npx tsql-generate migration create add_users --migrations-dir ./db/migrations
+npx tsql migration create add_users --migrations-dir ./db/migrations
 ```
 
 ## Troubleshooting

@@ -97,13 +97,13 @@ Generate TypeScript interfaces and query builders from your database schema:
 
 ```bash
 # Generate types for all tables
-npx tsql-generate
+npx tsql
 
 # Generate types for all tables in a specific directory
-npx tsql-generate ./my-types
+npx tsql ./my-types
 
 # Generate types for specific tables only
-npx tsql-generate ./generated users posts comments
+npx tsql ./generated users posts comments
 
 # Via npm scripts (alternative)
 npm run generate
@@ -173,22 +173,22 @@ TSQL includes a comprehensive migration system for managing database schema chan
 
 ```bash
 # Initialize migration system
-npx tsql-generate migration init
+npx tsql migration init
 
 # Create a new migration
-npx tsql-generate migration create add_users_table
+npx tsql migration create add_users_table
 
 # Apply pending migrations
-npx tsql-generate migration up
+npx tsql migration up
 
 # Check migration status
-npx tsql-generate migration status
+npx tsql migration status
 
 # Rollback migrations
-npx tsql-generate migration down
+npx tsql migration down
 
 # Dry run (preview without executing)
-npx tsql-generate migration up --dry-run
+npx tsql migration up --dry-run
 ```
 
 See [MIGRATION.md](./MIGRATION.md) for complete migration documentation.
