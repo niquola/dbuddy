@@ -15,8 +15,8 @@ const args = process.argv.slice(2);
 
 // Run the compiled JavaScript CLI
 const child = spawn('node', [cliPath, ...args], {
-  stdio: 'inherit',
-  cwd: projectRoot
+  stdio: 'inherit'
+  // Don't set cwd to preserve the directory where the command was called from
 });
 
 child.on('close', (code) => {

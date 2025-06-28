@@ -49,7 +49,7 @@ function loadEnvironmentConfig(): void {
   const envPath = findEnvFile()
   if (envPath) {
     config({ path: envPath })
-    console.error(`Loaded environment configuration from: ${envPath}`)
+    console.log(`Loaded environment configuration from: ${envPath}`)
   } else {
     console.error('No .env file found, using system environment variables')
   }
@@ -480,7 +480,6 @@ class MCPServer {
   private async handleShowConfig() {
     const configInfo = this.service.getConfig()
     const { config, envVars } = configInfo
-    const setVars = envVars.filter((env: EnvironmentVariable) => env.isSet)
     const projectDir = getProjectBaseDirectory()
 
     const configText = `Project Configuration:
@@ -493,16 +492,21 @@ Database: ${config.database}
 User: ${config.user}
 Password: ${config.password ? '●'.repeat(Math.min(config.password.length, 8)) : '(not set)'}
 
-Environment Variables Used:
-${setVars.length > 0 
-  ? setVars.map((env: EnvironmentVariable) => {
-      const value = env.name.includes('PASSWORD') || env.name.includes('URL') 
-        ? (env.value ? '●'.repeat(Math.min(env.value.length, 8)) : '') 
-        : env.value
-      return `• ${env.name}=${value}`
-    }).join('\n')
-  : '• No environment variables set - using defaults'
-}`
+Environment Variables:
+${envVars.map((env: EnvironmentVariable) => {
+  const value = env.name.includes('PASSWORD') || env.name.includes('URL')
+    ? (env.value ? '●'.repeat(Math.min(env.value.length, 8)) : '(not set)')
+    : (env.value || '(not set)')
+  return `• ${env.name}=${value} [${env.isSet ? 'set' : 'not set'}]`
+}).join('\n')}
+
+All process.env Variables:
+${Object.entries(process.env).map(([key, value]) => {
+  const maskedValue = key.includes('PASSWORD') || key.includes('URL') || key.includes('SECRET') || key.includes('KEY')
+    ? (value ? '●'.repeat(Math.min(value.length, 8)) : '(not set)')
+    : (value || '(not set)')
+  return `• ${key}=${maskedValue}`
+}).join('\n')}`
 
     return {
       content: [
@@ -517,7 +521,6 @@ ${setVars.length > 0
   async start() {
     const transport = new StdioServerTransport()
     await this.server.connect(transport)
-    console.error('dbuddy MCP Server running on stdio')
   }
 }
 

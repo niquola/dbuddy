@@ -84,6 +84,7 @@ Usage:
   dbuddy <command> [subcommand] [options]
 
 Commands:
+  init                         Initialize project with .env, docker-compose.yml, and .cursor/mcp.json
   gen-model                    Generate TypeScript models from database schema
   list-tables                  List all tables in the database
   show-config                  Show database connection configuration
@@ -107,6 +108,7 @@ Options:
   --migrations-dir <dir>       Migrations directory (default: ./migrations)
 
 Examples:
+  dbuddy init
   dbuddy gen-model
   dbuddy gen-model --output ./types
   dbuddy gen-model --tables users,posts,comments
@@ -120,6 +122,15 @@ Examples:
   dbuddy migration status
   dbuddy --help
 `)
+  }
+
+  private async runInit(): Promise<void> {
+    try {
+      await this.service.initializeProject()
+    } catch (error) {
+      console.error('❌ Error initializing project:', error)
+      process.exit(1)
+    }
   }
 
   private async runGenModel(args: CliArgs): Promise<void> {
@@ -429,6 +440,10 @@ Examples:
     
     // Handle commands
     switch (args.command) {
+      case 'init':
+        await this.runInit()
+        break
+        
       case 'gen-model':
         await this.runGenModel(args)
         break

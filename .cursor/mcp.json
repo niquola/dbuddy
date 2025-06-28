@@ -2,7 +2,9 @@
   "mcpServers": {
     "dbuddy": {
       "command": "node",
-      "args": ["./bin/dbuddy-mcp.js"]
+      "args": [
+        "./bin/dbuddy-mcp.js"
+      ]
     }
   }
-} 
+}

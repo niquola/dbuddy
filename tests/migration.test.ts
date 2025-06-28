@@ -271,4 +271,41 @@ describe('Migration System', () => {
     `)
     expect(result.rows).toHaveLength(0)
   })
+
+  it('should auto-initialize migrations when running migrateUp', async () => {
+    // Drop the migrations table if it exists
+    await db.query('DROP TABLE IF EXISTS dbuddy_migrations CASCADE')
+
+    // Create a test migration
+    const { version } = await runner.generateMigration('test_auto_init')
+    
+    const upFile = path.join(TEST_MIGRATIONS_DIR, `${version}_test_auto_init.up.sql`)
+    const downFile = path.join(TEST_MIGRATIONS_DIR, `${version}_test_auto_init.down.sql`)
+    
+    fs.writeFileSync(upFile, 'CREATE TABLE test_users (id SERIAL PRIMARY KEY, name VARCHAR(100));')
+    fs.writeFileSync(downFile, 'DROP TABLE IF EXISTS test_users;')
+
+    // Try to apply migration without initializing first
+    await runner.migrateUp()
+
+    // Verify that both the migrations table and the test table were created
+    const migrationsTableResult = await db.query(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_name = 'dbuddy_migrations'
+    `)
+    expect(migrationsTableResult.rows).toHaveLength(1)
+
+    const testTableResult = await db.query(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_name = 'test_users'
+    `)
+    expect(testTableResult.rows).toHaveLength(1)
+
+    // Verify that the migration was recorded
+    const status = await runner.getStatus()
+    expect(status[0].status).toBe('applied')
+    expect(status[0].appliedAt).toBeDefined()
+  })
 }) 

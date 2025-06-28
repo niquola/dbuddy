@@ -5,35 +5,8 @@ import fs from 'fs'
 
 // Function to find the base project directory where npx was called
 export function getProjectBaseDirectory(): string {
-  // First try the directory where npm command was originally run
-  const initCwd = process.env.INIT_CWD
-  if (initCwd && fs.existsSync(initCwd)) {
-    return initCwd
-  }
-
-  // Fallback: current working directory
-  const cwd = process.cwd()
-  
-  // If we have a reasonable working directory, check if it contains package.json
-  if (cwd !== '/' && cwd !== '' && fs.existsSync(path.join(cwd, 'package.json'))) {
-    return cwd
-  }
-  
-  // If current working directory doesn't work, try to find project directory
-  // based on the location of this config file
-  const configFileDir = __dirname
-  let currentDir = configFileDir
-  
-  // Search up the directory tree from the config file location
-  while (currentDir !== path.dirname(currentDir)) {
-    if (fs.existsSync(path.join(currentDir, 'package.json'))) {
-      return currentDir
-    }
-    currentDir = path.dirname(currentDir)
-  }
-  
-  // Last resort: use the working directory even if it seems wrong
-  return cwd
+  const firstPath = process.env.WORKSPACE_FOLDER_PATHS?.split(',')[0]?.trim()
+  return firstPath || process.env.WORKSPACE || process.cwd()
 }
 
 // Function to find .env file starting from the project base directory

@@ -201,6 +201,21 @@ export class MigrationRunner {
    */
   async migrateUp(options: MigrationOptions = {}): Promise<void> {
     const { target, dryRun = false } = options
+
+    // Check if migrations table exists using information_schema
+    const tableExists = await this.db.query<{ exists: boolean }>(`
+      SELECT EXISTS (
+        SELECT 1 
+        FROM information_schema.tables 
+        WHERE table_name = 'dbuddy_migrations'
+      )
+    `)
+    
+    if (!tableExists.rows[0].exists) {
+      console.log('🔧 Migrations table not found, initializing...')
+      await this.initialize()
+    }
+
     const fileMigrations = this.loadMigrationFiles()
     const appliedMigrations = await this.getAppliedMigrations()
     const appliedVersions = new Set(appliedMigrations.map(m => m.version))
